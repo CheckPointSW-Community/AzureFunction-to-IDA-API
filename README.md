@@ -1,4 +1,4 @@
-# Check Point Security Gateway - Azure Function to Identity Awareness API
+# Azure Function to Check Point Security Gateway Identity Awareness API
 This Azure function will allow you to add/delete IP addresses on Check Point security gateway without a policy push. This is commonly used to block a suspicious IP address or grant temporary access to/from an IP address.
 
 ## How the function works?
@@ -10,12 +10,13 @@ The function consumes an HTTP post containing target IP, role, and session-timeo
 <img width="800" src="function_icon.png"> </a>
 </p>
 
-## Requirements
+## Prerequisite
 Before you get started, make sure you have the following requirements in place:
 - An Azure account with an active subscription. [Create an account for free](https://azure.microsoft.com/free/?ref=microsoft.com&utm_source=microsoft.com&utm_medium=docs&utm_campaign=visualstudio).
 - Install [Python](https://www.python.org/downloads/). 
 - Install [Visual Studio code](https://code.visualstudio.com). A free source-code editor made by Microsoft for Windows, Linux and macOS. Features include support for debugging, syntax highlighting, intelligent code completion, snippets, code refactoring, and embedded Git.
 - The [Azure Functions extension](https://marketplace.visualstudio.com/items?itemName=ms-azuretools.vscode-azurefunctions) for Visual Studio Code.
+- Check Point Security Gateway deployed
 
 ## Setting up your Azure Function
 
@@ -42,23 +43,19 @@ git clone <Our Repo URL here>
     
 4. Output from the Functions Core tools appears in the VS Code **Terminal** panel. Once the host has started, **Alt+click** the local URL shown in the output to open the browser and run the function. You can also see the url of the Local Function by right clicking on the function on the Azure Functions explorer.
     
-5. Follow steps of [this](https://docs.microsoft.com/en-us/azure/developer/python/tutorial-vs-code-serverless-python-05) guide to deploy your Azure Function to your subscription and get a live API endpoint URL.
+5. Follow steps of [this](https://docs.microsoft.com/en-us/azure/developer/python/tutorial-vs-code-serverless-python-05) guide to deploy your Azure Function to your subscription and get a live API endpoint URL. Write down the Azure Function API Endpoint URL, we will use this URL to post our requests to. 
 
-Take note of the Azure Function API Endpoint URL
-
-6. Follow steps of [this](https://docs.microsoft.com/en-us/azure/azure-functions/ip-addresses) guide to get Function app outbound IP addresses. 
-
-Take note of Azure Function outbound IP addresses. 
+6. Follow steps of [this](https://docs.microsoft.com/en-us/azure/azure-functions/ip-addresses) guide to get Function app outbound IP addresses. Write down the Azure Function outbound IP addresses, we will need to add these IP addresses to Check Point Security Gateway in step 2 below. 
     
 ## Check Point Gateway Configuration
 
 1. Create Identity Awareness role object. We will use this object in our security policy. 
 
-    From SmartConsole -> New object -> More -> User -> Access Role -> YourRoleName -> Press "Ok" to create
+    - From SmartConsole -> New object -> More -> User -> Access Role -> YourRoleName -> Press "Ok" to create
     
 2. Create a new Network Group and populate group with each Azure Function app IP addresses from Step 6. 
 
-     From SmartConsole -> New Network Group -> YourAzureFunctionGroupName -> Add each IP address to group
+     - From SmartConsole -> New Network Group -> YourAzureFunctionGroupName -> Add each IP address to group
 
 3. Enable Check Point Security Gateway Identity Awareness per [this](https://sc1.checkpoint.com/documents/latest/IdentityAPIs/#ida_api_config~v1%20) guide.
 
@@ -66,23 +63,23 @@ Take note of Azure Function outbound IP addresses.
 
     - Use the gateway secret from step 2 of Setting up your Azure Function.
 
-4. Create the desired security policy for the role.
-
-    - This example will block all IP address in/out of configured firewall. You can also define rules specific to your application. 
+4. Create the desired security policy for the role. This example will block all IP address in/out of configured firewall. You can also define rules specific to your application. 
     
-    - Rule 1 
-        Source: Any
-        Destination: BlockIPRole
-        Service: Any
-        Action: Drop
-        
-    - Rule 2
-        Source: BlockIPRole
+    ```
+    - Example 1 
+        Source: BadIPRole
         Destination: Any
         Service: Any
-        Action: Drop
-    
-5. Push security policy to all gateways.
+        Action: Drop    
+
+    - Example 2
+        Source: WebServersRole
+        Destination: AppServersRole
+        Service: http/http
+        Action: Accept
+    ```
+
+5. Push security policy to all gateways for the changes to take effect and start testing. 
 
 ## How to use
 
