@@ -1,12 +1,13 @@
 # Azure Function to Check Point Security Gateway Identity Awareness API
-This Azure function will allow you to add/delete IP addresses on Check Point security gateway without a policy push. This is commonly used to block a suspicious IP address or grant temporary access to/from an IP address.
+This Azure function will allow you to add/delete IP addresses on Check Point security gateway without a policy push. This allows operations team to make changes without having to go through intenal change management process. 
+
+This is commonly used to block a suspicious IP address or grant temporary access to/from an IP address.
 
 ## How the function works?
 
 The function consumes an HTTP post containing target IP, role, and session-timeout to be added/deleted into the Check Point Gateway Identity Awareness enabled Gateway. 
 
 <p align="left">
-<a href="https://www.checkpoint.com">
 <img width="800" src="function_icon.png"> </a>
 </p>
 
@@ -93,3 +94,19 @@ curl -k -v --request POST -H 'Content-Type: application/json' -d '{ "action":"ad
 ```
 curl -k -v --request POST -H 'Content-Type: application/json' -d '{ "action":"delete", "ip":"1.1.1.1" }' https://your-function-api-endpoint.azurewebsites.net/api/HttpTrigger1
 ```
+
+## Considerations 
+### Securing your Azure Functions 
+Common ways to secure an Azure Function is: 
+1. Secure it with an access key
+2. Limit access using NSG or Firewalls
+3. Set function as an internal endpoint
+
+For more information please refer to [this](https://docs.microsoft.com/en-us/azure/azure-functions/security-concepts) article.
+
+## Troubleshooting
+1. Leverage Visual Studio Code debug function to make sure the application works locally before deploying in Azure. You will need to add your PC IP address as an Authorized Client. 
+
+2. 404 error: This usually means the gateway secret is incorrect or your PC IP address if testing locally or Azure function IP is not an Authorized Client. Refer to step 3 - Check Point Gateway Configuration. 
+
+3. Make sure Azure Function ranges can reach the gateway. For the list of IP address of your function, please refer to step 6 - Deploy the function. 
