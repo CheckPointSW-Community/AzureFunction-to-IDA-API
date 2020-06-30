@@ -23,8 +23,8 @@ Before you get started, make sure you have the following requirements in place:
 
 ### 1. Clone the repository
 
-```console
-git clone <Our Repo URL here>
+```
+git clone https://github.com/CheckPointSW-Community/AzureFunction-to-IDA-API
 ```
 
 ### 2. Modify the function/gateways.txt file with gateway IP address and secret
