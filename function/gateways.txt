@@ -1,0 +1,2 @@
+<gateway01 ip>:<gw01-secret>
+<gateway02 ip>:<gw02-secret>
